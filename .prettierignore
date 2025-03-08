@@ -1,0 +1,9 @@
+# .prettierignore
+.next
+node_modules
+dist
+coverage
+public
+*.md
+*.svg
+*.log
