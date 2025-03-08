@@ -8,6 +8,7 @@ import { ResultScreen } from './components/Result/ResultScreen';
 import { useImageProcessing } from './hooks/useImageProcessing';
 import { ErrorBoundary } from './components/Error/ErrorBoundary';
 
+
 export default function PhotoBoothPage() {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
@@ -32,22 +33,19 @@ export default function PhotoBoothPage() {
   };
 
   return (
-    <ErrorBoundary>
-      <main className="h-screen w-full bg-gray-900">
-        {currentStep === 'camera' && <Camera onCapture={handleCapture} />}
-        {currentStep === 'crop' && currentImage && (
-          <Cropper imageSrc={currentImage} onComplete={handleCropComplete} />
-        )}
-        {currentStep === 'processing' && (
-          <ProcessingScreen progress={progress} />
-        )}
-        {currentStep === 'result' && processedImage && (
-          <ResultScreen
-            imageUrl={processedImage}
-            onRetry={() => setCurrentStep('camera')}
-          />
-        )}
-      </main>
-    </ErrorBoundary>
+    <ErrorBoundary
+    <main className="h-screen w-full bg-gray-900">
+      {currentStep === 'camera' && <Camera onCapture={handleCapture} />}
+      {currentStep === 'crop' && currentImage && (
+        <Cropper imageSrc={currentImage} onComplete={handleCropComplete} />
+      )}
+      {currentStep === 'processing' && <ProcessingScreen progress={progress} />}
+      {currentStep === 'result' && processedImage && (
+        <ResultScreen
+          imageUrl={processedImage}
+          onRetry={() => setCurrentStep('camera')}
+        />
+      )}
+    </main>
   );
 }
