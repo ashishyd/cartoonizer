@@ -1,0 +1,34 @@
+@import 'variables';
+@import 'mixins';
+
+body {
+  background: $primary-bg;
+  color: $primary-text;
+  min-height: 100vh;
+}
+
+@keyframes camera-flash {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  .animate-camera-flash {
+    animation: camera-flash 0.3s ease-out;
+  }
+  
+  @media (max-width: 640px) {
+    .camera-container {
+      padding: 1rem;
+    }
+    
+    .viewfinder-svg {
+      width: 90%;
+      stroke-width: 1.5;
+    }
+    
+    .capture-button {
+      height: 4rem;
+      width: 4rem;
+    }
+  }
