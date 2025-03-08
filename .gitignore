@@ -26,6 +26,9 @@
 # misc
 .DS_Store
 *.pem
+/history/
+/.next/
+/.vscode/
 
 # debug
 npm-debug.log*
