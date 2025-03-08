@@ -1,6 +1,8 @@
-const path = require('path');
+import path from 'path';
 
-const withPWA = require('next-pwa')({
+import next_pwa from 'next-pwa';
+
+const withPWA = next_pwa({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
 });

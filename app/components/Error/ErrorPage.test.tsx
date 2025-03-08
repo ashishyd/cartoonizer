@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ErrorPage from './ErrorPage';
 import { useRouter } from 'next/navigation';

@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils';
 // Mock Webcam and Face Detection
 jest.mock('react-webcam', () => ({
   __esModule: true,
-  default: (props: any) => (
+  default: (props: unknown) => (
     <video
       data-testid="mock-webcam"
       className={props.className}

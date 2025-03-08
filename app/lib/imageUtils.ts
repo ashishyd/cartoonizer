@@ -18,7 +18,7 @@ export async function addLogo(
 
     return canvas.toDataURL('image/jpeg');
   } catch (error) {
-    throw new Error('Failed to add logo');
+    throw new Error('Failed to add logo', { cause: error });
   }
 }
 
