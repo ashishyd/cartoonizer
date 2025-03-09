@@ -15,7 +15,10 @@
     "type-check": "tsc --noEmit",
     "prepare": "husky install",
     "lint": "eslint . --ignore-pattern '.next/*' --ext .ts,.tsx,.js,.jsx",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": "vercel deploy --prod",
+    "deploy:preview": "vercel deploy",
+    "deploy:alias": "vercel deploy --prod --alias your-domain.com"
   },
   "dependencies": {
     "@mui/material": "^6.4.7",

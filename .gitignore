@@ -27,7 +27,6 @@
 .DS_Store
 *.pem
 /.history/
-/.vscode/
 
 # debug
 npm-debug.log*
@@ -44,3 +43,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/playwright-report/
+/test-results/
+/.vscode/
