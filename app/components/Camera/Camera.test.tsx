@@ -1,16 +1,12 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import Camera from './Camera';
+import { Camera } from './Camera';
 import { act } from 'react-dom/test-utils';
 
 // Mock Webcam and Face Detection
 jest.mock('react-webcam', () => ({
   __esModule: true,
-  default: (props: unknown) => (
-    <video
-      data-testid="mock-webcam"
-      className={props.className}
-      ref={props.videoRef}
-    />
+  default: (props: { className?: string; videoRef?: React.RefObject<HTMLVideoElement> }) => (
+    <video data-testid='mock-webcam' className={props.className} ref={props.videoRef} />
   ),
 }));
 
@@ -44,9 +40,7 @@ describe('Camera', () => {
 
     // Verify main elements
     expect(screen.getByTestId('mock-webcam')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /capture/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /capture/i })).toBeInTheDocument();
     expect(screen.getByText(/center your face/i)).toBeInTheDocument();
   });
 
@@ -72,9 +66,7 @@ describe('Camera', () => {
     });
 
     expect(mockCapture).toHaveBeenCalled();
-    expect(screen.getByTestId('mock-webcam')).toHaveClass(
-      'animate-camera-flash'
-    );
+    expect(screen.getByTestId('mock-webcam')).toHaveClass('animate-camera-flash');
   });
 
   it('adapts aspect ratio for mobile portrait', async () => {

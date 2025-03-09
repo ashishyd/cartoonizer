@@ -12,9 +12,7 @@ window.HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
   restore: jest.fn(),
 }));
 
-window.HTMLCanvasElement.prototype.toDataURL = jest.fn(
-  () => 'data:image/jpeg;base64,mocked'
-);
+window.HTMLCanvasElement.prototype.toDataURL = jest.fn(() => 'data:image/jpeg;base64,mocked');
 
 // Mock ResizeObserver
 class ResizeObserver {
@@ -27,3 +25,17 @@ window.ResizeObserver = ResizeObserver;
 // Mock createObjectURL
 window.URL.createObjectURL = jest.fn();
 window.URL.revokeObjectURL = jest.fn();
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: (query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // Deprecated
+    removeListener: jest.fn(), // Deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  }),
+});
