@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 // import { LinkedinShareButton, LinkedinIcon } from 'react-share';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export function ResultScreen() {
   // const [showShareOptions, setShowShareOptions] = useState(false);
@@ -13,6 +15,53 @@ export function ResultScreen() {
   // const hashtags = ['EPAM', 'MyAISelfie'];
   const router = useRouter();
   const { imageUrl, reset } = useStore();
+  const { showError } = useErrorStore();
+
+  const handleDownload = () => {
+    try {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = 'photo.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      if (err instanceof Error) {
+        showError({
+          code: 'result/download-error',
+          message: 'Failed to download the photo. Please try again.',
+          context: { stack: err.stack },
+        });
+        AppLogger.logError({
+          code: 'result/download-error',
+          message: err.message,
+          context: { stack: err.stack },
+          timestamp: new Date(),
+        });
+      }
+    }
+  };
+
+  const handleStartOver = () => {
+    try {
+      reset();
+      router.push('/');
+    } catch (err) {
+      if (err instanceof Error) {
+        showError({
+          code: 'result/startover-error',
+          message: 'Failed to start over. Please try again.',
+          context: { stack: err.stack },
+        });
+        AppLogger.logError({
+          code: 'result/startover-error',
+          message: err.message,
+          context: { stack: err.stack },
+          timestamp: new Date(),
+        });
+      }
+    }
+  };
 
   return (
     <div className='h-screen w-full bg-gray-900 flex flex-col items-center justify-center gap-8 p-4'>
@@ -40,24 +89,14 @@ export function ResultScreen() {
         {/*</button>*/}
 
         <button
-          onClick={() => {
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = 'photo.jpg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }}
+          onClick={handleDownload}
           className='px-6 py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-all'
         >
-          Download Photo
+          Download
         </button>
 
         <button
-          onClick={() => {
-            reset();
-            router.push('/');
-          }}
+          onClick={handleStartOver}
           className='px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors'
         >
           Start Over

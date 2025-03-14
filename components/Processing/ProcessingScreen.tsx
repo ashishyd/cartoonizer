@@ -5,16 +5,35 @@ import { useImageProcessing } from '@/hooks/useImageProcessing';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export function ProcessingScreen() {
   const { processImage, progress } = useImageProcessing();
   const router = useRouter();
   const { imageUrl } = useStore();
+  const { showError } = useErrorStore();
   const hasProcessed = useRef(false);
 
   const process = async () => {
-    await processImage(imageUrl);
-    router.push('/result');
+    try {
+      await processImage(imageUrl);
+      router.push('/result');
+    } catch (err) {
+      if (err instanceof Error) {
+        showError({
+          code: 'processing/image-error',
+          message: 'Failed to process the image. Please try again.',
+          context: { stack: err.stack },
+        });
+        AppLogger.logError({
+          code: 'processing/image-error',
+          message: err.message,
+          context: { stack: err.stack },
+          timestamp: new Date(),
+        });
+      }
+    }
   };
 
   useEffect(() => {

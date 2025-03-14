@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export function useFaceDetection(videoElement: HTMLVideoElement | null | undefined) {
   const [faces, setFaces] = useState<faceapi.FaceDetection[]>([]);
+  const { showError } = useErrorStore();
 
   useEffect(() => {
     if (!videoElement) {
@@ -15,7 +18,19 @@ export function useFaceDetection(videoElement: HTMLVideoElement | null | undefin
         await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
         await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
       } catch (error) {
-        console.error('Error loading models:', error);
+        if (error instanceof Error) {
+          showError({
+            code: 'face-detection/model-load-error',
+            message: 'Error loading face detection models.',
+            context: { stack: error.stack },
+          });
+          AppLogger.logError({
+            code: 'face-detection/model-load-error',
+            message: error.message,
+            context: { stack: error.stack },
+            timestamp: new Date(),
+          });
+        }
       }
     };
 
@@ -27,7 +42,19 @@ export function useFaceDetection(videoElement: HTMLVideoElement | null | undefin
         );
         setFaces(detections);
       } catch (error) {
-        console.error('Error detecting faces:', error);
+        if (error instanceof Error) {
+          showError({
+            code: 'face-detection/detection-error',
+            message: 'Error detecting faces.',
+            context: { stack: error.stack },
+          });
+          AppLogger.logError({
+            code: 'face-detection/detection-error',
+            message: error.message,
+            context: { stack: error.stack },
+            timestamp: new Date(),
+          });
+        }
       }
     };
 
@@ -35,7 +62,7 @@ export function useFaceDetection(videoElement: HTMLVideoElement | null | undefin
     const interval = setInterval(detect, 500);
 
     return () => clearInterval(interval);
-  }, [videoElement]);
+  }, [videoElement, showError]);
 
   return { faces };
 }

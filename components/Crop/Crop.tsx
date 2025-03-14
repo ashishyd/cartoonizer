@@ -5,10 +5,13 @@ import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export function Crop() {
   const router = useRouter();
   const { setImageUrl, imageUrl } = useStore();
+  const { showError } = useErrorStore();
 
   const [crop, setCrop] = useState<Crop>();
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -28,7 +31,9 @@ export function Crop() {
       canvas.height = crop.height * scaleY;
 
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        throw new Error('Failed to get canvas context');
+      }
 
       ctx.drawImage(
         image,
@@ -45,8 +50,20 @@ export function Crop() {
       const croppedImage = canvas.toDataURL('image/jpeg');
       setImageUrl(croppedImage);
       router.push('/processing');
-    } catch (error) {
-      console.error('Cropping failed:', error);
+    } catch (err) {
+      if (err instanceof Error) {
+        showError({
+          code: 'crop/cropping-error',
+          message: 'Cropping failed. Please try again.',
+          context: { stack: err.stack },
+        });
+        AppLogger.logError({
+          code: 'crop/cropping-error',
+          message: err.message,
+          context: { stack: err.stack },
+          timestamp: new Date(),
+        });
+      }
     } finally {
       setIsProcessing(false);
     }

@@ -1,4 +1,6 @@
 import { createCanvas, loadImage } from 'canvas';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export async function addLogo(
   baseImage: string,
@@ -6,6 +8,8 @@ export async function addLogo(
   name: string,
   socialHandle?: string
 ): Promise<string> {
+  const { showError } = useErrorStore.getState();
+
   try {
     const [baseImg, logo] = await Promise.all([loadImage(baseImage), loadImage(logoPath)]);
 
@@ -49,15 +53,46 @@ export async function addLogo(
     }
     return canvas.toDataURL('image/jpeg');
   } catch (error) {
-    throw new Error('Failed to add logo', { cause: error });
+    if (error instanceof Error) {
+      showError({
+        code: 'image-utils/add-logo-error',
+        message: 'Failed to add logo',
+        context: { stack: error.stack },
+      });
+      AppLogger.logError({
+        code: 'image-utils/add-logo-error',
+        message: error.message,
+        context: { stack: error.stack },
+        timestamp: new Date(),
+      });
+    }
+    throw error;
   }
 }
 
 export async function optimizeImage(imageSrc: string): Promise<string> {
-  const img = await loadImage(imageSrc);
-  const canvas = createCanvas(800, 600);
-  const ctx = canvas.getContext('2d');
+  const { showError } = useErrorStore.getState();
+  try {
+    const img = await loadImage(imageSrc);
+    const canvas = createCanvas(800, 600);
+    const ctx = canvas.getContext('2d');
 
-  ctx.drawImage(img, 0, 0, 800, 600);
-  return canvas.toDataURL('image/jpeg', 0.8);
+    ctx.drawImage(img, 0, 0, 800, 600);
+    return canvas.toDataURL('image/jpeg', 0.8);
+  } catch (error) {
+    if (error instanceof Error) {
+      showError({
+        code: 'image-utils/optimize-image-error',
+        message: 'Failed to optimize image',
+        context: { stack: error.stack },
+      });
+      AppLogger.logError({
+        code: 'image-utils/optimize-image-error',
+        message: error.message,
+        context: { stack: error.stack },
+        timestamp: new Date(),
+      });
+    }
+    throw error;
+  }
 }

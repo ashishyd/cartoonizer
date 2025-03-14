@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { addLogo, optimizeImage } from '@/lib/imageUtils';
 import { useStore } from '@/store/store';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export function useImageProcessing() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const { fullName, socialHandle, setImageUrl } = useStore();
+  const { showError } = useErrorStore();
 
   const processImage = async (image: string) => {
     try {
@@ -16,6 +19,9 @@ export function useImageProcessing() {
         body: JSON.stringify({ image }),
         headers: { 'Content-Type': 'application/json' },
       });
+      if (!cartoonResponse.ok) {
+        throw new Error('Failed to cartoonify image');
+      }
       setProgress(60);
 
       const { output_url } = await cartoonResponse.json();
@@ -29,7 +35,19 @@ export function useImageProcessing() {
       setProcessedImage(brandedImage);
       setImageUrl(brandedImage);
     } catch (error) {
-      console.error('Processing failed:', error);
+      if (error instanceof Error) {
+        showError({
+          code: 'processing/image-error',
+          message: 'Failed to process the image. Please try again.',
+          context: { stack: error.stack },
+        });
+        AppLogger.logError({
+          code: 'processing/image-error',
+          message: error.message,
+          context: { stack: error.stack },
+          timestamp: new Date(),
+        });
+      }
       throw error;
     }
   };

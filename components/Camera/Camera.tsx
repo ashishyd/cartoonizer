@@ -7,11 +7,14 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useFaceDetection } from '@/hooks/useFaceDetection';
 import { useStore } from '@/store/store';
+import { useErrorStore } from '@/store/errorStore';
+import { AppLogger } from '@/lib/logger';
 
 export function Camera() {
   // const { t } = useTranslation('common');
   const router = useRouter();
   const { setImageUrl } = useStore();
+  const { showError } = useErrorStore();
   // const currentLocale = i18n.language;
   const webcamRef = useRef<Webcam>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -20,13 +23,29 @@ export function Camera() {
   const { faces } = useFaceDetection(webcamRef.current?.video);
 
   const capture = async () => {
-    setFlashEffect(true);
-    const imageSrc = webcamRef.current?.getScreenshot();
-    if (imageSrc) {
-      setImageUrl(imageSrc);
-      router.push('/crop');
+    try {
+      setFlashEffect(true);
+      const imageSrc = webcamRef.current?.getScreenshot();
+      if (imageSrc) {
+        setImageUrl(imageSrc);
+        router.push('/crop');
+      }
+      setTimeout(() => setFlashEffect(false), 200);
+    } catch (err) {
+      if (err instanceof Error) {
+        showError({
+          code: 'camera/capture-error',
+          message: 'Failed to capture image. Please try again.',
+          context: { stack: err.stack },
+        });
+        AppLogger.logError({
+          code: 'camera/capture-error',
+          message: err.message,
+          context: { stack: err.stack },
+          timestamp: new Date(),
+        });
+      }
     }
-    setTimeout(() => setFlashEffect(false), 200);
   };
 
   useEffect(() => {
@@ -56,6 +75,22 @@ export function Camera() {
             aspectRatio,
           }}
           onUserMedia={() => setIsCameraReady(true)}
+          onUserMediaError={(err) => {
+            if (err instanceof Error) {
+              showError({
+                code: 'camera/access-denied',
+                message:
+                  'Camera access denied. Please enable camera access in your browser settings.',
+                context: { stack: err.stack },
+              });
+              AppLogger.logError({
+                code: 'camera/access-denied',
+                message: err.message,
+                context: { stack: err.stack },
+                timestamp: new Date(),
+              });
+            }
+          }}
           className={`w-full h-full object-cover transition-opacity ${
             isCameraReady ? 'opacity-100' : 'opacity-0'
           } ${flashEffect ? 'animate-camera-flash' : ''}`}
