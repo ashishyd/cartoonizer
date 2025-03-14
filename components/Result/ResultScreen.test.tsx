@@ -1,26 +1,47 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/dom';
 import { ResultScreen } from './ResultScreen';
+import { useStore } from '@/store/store';
+import { useRouter } from 'next/navigation';
 
-jest.mock('../hooks/useShortenUrl');
+jest.mock('@/store/store');
+jest.mock('next/navigation');
 
 describe('ResultScreen', () => {
-  it('toggles QR code visibility', () => {
-    render(<ResultScreen imageUrl='test.jpg' onRetry={() => {}} />);
-
-    fireEvent.click(screen.getByText('Show QR Code'));
-    expect(screen.getByText('Hide QR Code')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('Hide QR Code'));
-    expect(screen.getByText('Show QR Code')).toBeInTheDocument();
+  it('renders image with correct src', () => {
+    (useStore as unknown as jest.Mock).mockReturnValue({ imageUrl: 'test.jpg', reset: jest.fn() });
+    render(<ResultScreen />);
+    expect(screen.getByAltText('Result')).toHaveAttribute('src', 'test.jpg');
   });
 
-  it('shows error message when QR generation fails', async () => {
-    // Mock failed API response
-    jest.spyOn(global, 'fetch').mockRejectedValue(new Error('Failed'));
+  it('prints the image when print button is clicked', () => {
+    window.print = jest.fn();
+    (useStore as unknown as jest.Mock).mockReturnValue({ imageUrl: 'test.jpg', reset: jest.fn() });
+    render(<ResultScreen />);
+    fireEvent.click(screen.getByText('Print'));
+    expect(window.print).toHaveBeenCalled();
+  });
 
-    render(<ResultScreen imageUrl='test.jpg' onRetry={() => {}} />);
-    fireEvent.click(screen.getByText('Show QR Code'));
+  it('downloads the image when download button is clicked', () => {
+    const createElementSpy = jest.spyOn(document, 'createElement');
+    const appendChildSpy = jest.spyOn(document.body, 'appendChild');
+    const removeChildSpy = jest.spyOn(document.body, 'removeChild');
+    (useStore as unknown as jest.Mock).mockReturnValue({ imageUrl: 'test.jpg', reset: jest.fn() });
+    render(<ResultScreen />);
+    fireEvent.click(screen.getByText('Download Photo'));
+    expect(createElementSpy).toHaveBeenCalledWith('a');
+    expect(appendChildSpy).toHaveBeenCalled();
+    expect(removeChildSpy).toHaveBeenCalled();
+  });
 
-    await screen.findByText('Failed to generate QR code');
+  it('resets and navigates to home when start over button is clicked', () => {
+    const resetMock = jest.fn();
+    const pushMock = jest.fn();
+    (useStore as unknown as jest.Mock).mockReturnValue({ imageUrl: 'test.jpg', reset: resetMock });
+    (useRouter as unknown as jest.Mock).mockReturnValue({ push: pushMock });
+    render(<ResultScreen />);
+    fireEvent.click(screen.getByText('Start Over'));
+    expect(resetMock).toHaveBeenCalled();
+    expect(pushMock).toHaveBeenCalledWith('/');
   });
 });
