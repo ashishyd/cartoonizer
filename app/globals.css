@@ -71,3 +71,12 @@ body {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+.fact-carousel {
+  perspective: 1000px;
+}
+
+.fact-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}

@@ -1,13 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
+import { useErrorStore } from '@/store/errorStore';
+import { ERROR_TYPES } from '@/types/error';
+import { AppLogger } from '@/lib/logger';
 
 export function LandingScreen() {
   const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [socialHandle, setSocialHandle] = useState('');
-  const { setUserDetails } = useStore();
+  const { setUserDetails, setEpamFacts } = useStore();
+  const { showError } = useErrorStore();
+  const hasProcessed = useRef(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +21,39 @@ export function LandingScreen() {
       router.push('/camera');
     }
   };
+
+  const fetchFacts = async () => {
+    try {
+      const factsResponse = await fetch('/api/facts');
+      const { facts } = await factsResponse.json();
+      setEpamFacts(facts);
+    } catch (error) {
+      if (error instanceof Error) {
+        showError({
+          code: ERROR_TYPES.GENERAL.UNEXPECTED,
+          message: 'Failed to load EPAM facts',
+          context: { stack: error.stack },
+        });
+        AppLogger.logError({
+          code: ERROR_TYPES.GENERAL.UNEXPECTED,
+          message: error.message,
+          context: { stack: error.stack },
+          timestamp: new Date(),
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!hasProcessed.current) {
+      hasProcessed.current = true;
+      fetchFacts();
+    }
+
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, []);
 
   return (
     <div className='min-h-screen bg-gray-100 flex items-center justify-center p-4'>
