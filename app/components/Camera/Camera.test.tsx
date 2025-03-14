@@ -1,8 +1,10 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { Camera } from './Camera';
 import { act } from 'react-dom/test-utils';
+import { useFaceDetection } from '../../hooks/useFaceDetection';
+import { useStore } from '../../store';
+import { useRouter } from 'next/navigation';
 
-// Mock Webcam and Face Detection
 jest.mock('react-webcam', () => ({
   __esModule: true,
   default: (props: { className?: string; videoRef?: React.RefObject<HTMLVideoElement> }) => (
@@ -10,21 +12,30 @@ jest.mock('react-webcam', () => ({
   ),
 }));
 
-jest.mock('@/hooks/useFaceDetection', () => ({
-  useFaceDetection: () => ({
-    faces: [
-      {
-        box: { x: 100, y: 100, width: 200, height: 200 },
-        videoWidth: 1280,
-        videoHeight: 720,
-      },
-    ],
+jest.mock('../../hooks/useFaceDetection', () => ({
+  useFaceDetection: jest.fn(),
+}));
+
+jest.mock('next-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
+jest.mock('../../store', () => ({
+  useStore: () => ({
+    setImageUrl: jest.fn(),
+  }),
+}));
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
   }),
 }));
 
 describe('Camera', () => {
   beforeEach(() => {
-    // Mock window.matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: jest.fn().mockImplementation((query) => ({
@@ -36,16 +47,24 @@ describe('Camera', () => {
   });
 
   it('renders camera interface with responsive view', async () => {
-    render(<Camera onCapture={jest.fn()} />);
+    render(<Camera />);
 
-    // Verify main elements
     expect(screen.getByTestId('mock-webcam')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /capture/i })).toBeInTheDocument();
-    expect(screen.getByText(/center your face/i)).toBeInTheDocument();
+    expect(screen.getByText('capture_text')).toBeInTheDocument();
   });
 
   it('shows face detection overlay', async () => {
-    render(<Camera onCapture={jest.fn()} />);
+    (useFaceDetection as jest.Mock).mockReturnValue({
+      faces: [
+        {
+          box: { x: 100, y: 100, width: 200, height: 200 },
+          imageWidth: 1280,
+          imageHeight: 720,
+        },
+      ],
+    });
+
+    render(<Camera />);
 
     await waitFor(() => {
       const faceOverlay = screen.getByTestId('face-overlay');
@@ -56,21 +75,25 @@ describe('Camera', () => {
   });
 
   it('handles capture action with flash effect', async () => {
-    const mockCapture = jest.fn();
-    render(<Camera onCapture={mockCapture} />);
+    const mockSetImageUrl = jest.fn();
+    const mockPush = jest.fn();
+    (useStore as unknown as jest.Mock).mockReturnValue({ setImageUrl: mockSetImageUrl });
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
-    const captureButton = screen.getByRole('button', { name: /capture/i });
+    render(<Camera />);
+
+    const captureButton = screen.getByRole('button');
 
     await act(async () => {
       fireEvent.click(captureButton);
     });
 
-    expect(mockCapture).toHaveBeenCalled();
+    expect(mockSetImageUrl).toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith('/crop');
     expect(screen.getByTestId('mock-webcam')).toHaveClass('animate-camera-flash');
   });
 
   it('adapts aspect ratio for mobile portrait', async () => {
-    // Force portrait orientation
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: jest.fn().mockImplementation((query) => ({
@@ -80,41 +103,37 @@ describe('Camera', () => {
       })),
     });
 
-    render(<Camera onCapture={jest.fn()} />);
+    render(<Camera />);
 
     const webcam = screen.getByTestId('mock-webcam');
     expect(webcam).toHaveClass('object-cover');
   });
 
   it('shows camera permission error state', async () => {
-    render(<Camera onCapture={jest.fn()} />);
+    render(<Camera />);
 
-    // Simulate camera not ready
     await waitFor(() => {
-      expect(screen.getByText(/camera access required/i)).toBeInTheDocument();
+      expect(screen.getByText('camera_access_error_title')).toBeInTheDocument();
     });
   });
 
   it('handles multiple face detection', async () => {
-    // Override mock to return multiple faces
-    jest.mock('@/hooks/useFaceDetection', () => ({
-      useFaceDetection: () => ({
-        faces: [
-          {
-            box: { x: 100, y: 100, width: 200, height: 200 },
-            videoWidth: 1280,
-            videoHeight: 720,
-          },
-          {
-            box: { x: 400, y: 300, width: 200, height: 200 },
-            videoWidth: 1280,
-            videoHeight: 720,
-          },
-        ],
-      }),
-    }));
+    (useFaceDetection as jest.Mock).mockReturnValue({
+      faces: [
+        {
+          box: { x: 100, y: 100, width: 200, height: 200 },
+          imageWidth: 1280,
+          imageHeight: 720,
+        },
+        {
+          box: { x: 400, y: 300, width: 200, height: 200 },
+          imageWidth: 1280,
+          imageHeight: 720,
+        },
+      ],
+    });
 
-    render(<Camera onCapture={jest.fn()} />);
+    render(<Camera />);
 
     await waitFor(() => {
       const overlays = screen.getAllByTestId('face-overlay');
@@ -123,7 +142,7 @@ describe('Camera', () => {
   });
 
   it('shows viewfinder overlay', async () => {
-    render(<Camera onCapture={jest.fn()} />);
+    render(<Camera />);
 
     expect(screen.getByTestId('viewfinder-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('viewfinder-svg')).toBeInTheDocument();

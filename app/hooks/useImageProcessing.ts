@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { addLogo, optimizeImage } from '../lib/imageUtils';
+import { useStore } from '@/app/store';
 
 export function useImageProcessing() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const { fullName, socialHandle, setImageUrl } = useStore();
 
   const processImage = async (image: string) => {
     try {
@@ -21,10 +23,11 @@ export function useImageProcessing() {
       const optimizedImage = await optimizeImage(proxyUrl);
       setProgress(80);
 
-      const brandedImage = await addLogo(optimizedImage, '/brand-logo.png');
+      const brandedImage = await addLogo(optimizedImage, '/brand-logo.png', fullName, socialHandle);
       setProgress(100);
 
       setProcessedImage(brandedImage);
+      setImageUrl(brandedImage);
     } catch (error) {
       console.error('Processing failed:', error);
       throw error;

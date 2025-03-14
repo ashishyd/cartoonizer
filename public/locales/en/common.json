@@ -1,5 +1,5 @@
 {
-  "capture_text": "Center your face within the frame and tap to capture",
-  "camera_access_error_title": "Camera access required. Please allow camera permissions",
-  "camera_access_error_subtitle": "(Make sure your camera is connected and enabled)"
+  "capture_text": "Tap to capture",
+  "camera_access_error_title": "Camera access required",
+  "camera_access_error_subtitle": "Please enable camera access in your browser settings."
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 
-export function useFaceDetection(videoElement: HTMLVideoElement | null) {
+export function useFaceDetection(videoElement: HTMLVideoElement | null | undefined) {
   const [faces, setFaces] = useState<faceapi.FaceDetection[]>([]);
 
   useEffect(() => {

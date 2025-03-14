@@ -5,9 +5,14 @@ import Webcam from 'react-webcam';
 import { motion } from 'framer-motion';
 import { useFaceDetection } from '../../hooks/useFaceDetection';
 import { useTranslation } from 'next-i18next';
+import { useStore } from '../../store';
+import { useRouter } from 'next/navigation';
 
-export function Camera({ onCapture }: { onCapture: (img: string) => void }) {
+export function Camera() {
   const { t } = useTranslation('common');
+  console.log(t('capture_text'));
+  const router = useRouter();
+  const { setImageUrl } = useStore();
   // const currentLocale = i18n.language;
   const webcamRef = useRef<Webcam>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -19,7 +24,8 @@ export function Camera({ onCapture }: { onCapture: (img: string) => void }) {
     setFlashEffect(true);
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
-      onCapture(imageSrc);
+      setImageUrl(imageSrc);
+      router.push('/crop');
     }
     setTimeout(() => setFlashEffect(false), 200);
   };
@@ -62,10 +68,10 @@ export function Camera({ onCapture }: { onCapture: (img: string) => void }) {
             key={index}
             className='absolute border-2 border-green-400 rounded-lg transition-all'
             style={{
-              left: `${(face.box.x / face.videoWidth) * 100}%`,
-              top: `${(face.box.y / face.videoHeight) * 100}%`,
-              width: `${(face.box.width / face.videoWidth) * 100}%`,
-              height: `${(face.box.height / face.videoHeight) * 100}%`,
+              left: `${(face.box.x / face.imageWidth) * 100}%`,
+              top: `${(face.box.y / face.imageHeight) * 100}%`,
+              width: `${(face.box.width / face.imageWidth) * 100}%`,
+              height: `${(face.box.height / face.imageHeight) * 100}%`,
             }}
           />
         ))}
@@ -97,16 +103,18 @@ export function Camera({ onCapture }: { onCapture: (img: string) => void }) {
           <div className='h-8 w-8 rounded-full bg-blue-500 shadow-inner' />
         </motion.button>
 
-        <p className='text-white/70 text-center text-sm px-4'>{t('capture_text')}</p>
+        <p className='text-white/70 text-center text-sm px-4'>Tap to Capture</p>
       </div>
 
       {/* Error State */}
       {!isCameraReady && (
         <div className='absolute inset-0 bg-black/80 flex items-center justify-center p-4'>
           <p className='text-white text-center'>
-            {t('camera_access_error_title')}
+            Camera access required
             <br />
-            <span className='text-sm text-white/60'>{t('camera_access_error_subtitle')}</span>
+            <span className='text-sm text-white/60'>
+              Please enable camera access in your browser settings.
+            </span>
           </p>
         </div>
       )}
