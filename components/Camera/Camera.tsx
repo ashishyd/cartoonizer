@@ -71,6 +71,8 @@ export function Camera() {
           audio={false}
           screenshotFormat='image/jpeg'
           videoConstraints={{
+            width: 1280,
+            height: 720,
             facingMode: 'user',
             aspectRatio,
           }}
