@@ -3,6 +3,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { useErrorStore } from '@/store/errorStore';
 import { AppLogger } from '@/lib/logger';
+import { useNetworkStore } from '@/store/networkStore';
 
 interface Props {
   children: ReactNode;
@@ -21,6 +22,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    if (!navigator.onLine) {
+      useNetworkStore.getState().setOnline(false);
+    }
     useErrorStore.getState().showError({
       code: 'boundary/component-error',
       message: error.message,

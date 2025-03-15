@@ -25,6 +25,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      <head>
+        {/* Add PWA manifest */}
+        <link rel='manifest' href='/manifest.json' />
+
+        {/* Add service worker registration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker
+                    .register('/sw.js')
+                    .catch(err => console.log('Service Worker registration failed:', err))
+                })
+              }
+            `,
+          }}
+        />
+        <title>PhotoBooth</title>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );

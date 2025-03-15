@@ -5,6 +5,9 @@ import { i18n } from './next-i18next.config';
 const withPWA = next_pwa({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+  sw: 'sw.js',
 });
 
 module.exports = withPWA({

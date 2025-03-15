@@ -8,9 +8,12 @@ test.describe('Main User Flows', () => {
   test('should complete photo capture to result flow', async ({ page }) => {
     // Mock camera API
     await page.addInitScript(() => {
-      navigator.mediaDevices = {
-        getUserMedia: () => Promise.resolve(new MediaStream()),
-      };
+      Object.defineProperty(navigator, 'mediaDevices', {
+        value: {
+          getUserMedia: () => Promise.resolve(new MediaStream()),
+        },
+        configurable: true,
+      });
     });
 
     // Mock face detection
@@ -100,5 +103,31 @@ test.describe('Main User Flows', () => {
     const qrCode = page.locator('svg[role="img"]');
     await expect(qrCode).toBeVisible();
     await expect(qrCode).toHaveAttribute('aria-label', 'QR code');
+  });
+});
+
+test.describe('Offline Feature', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:3000');
+  });
+
+  test('should display offline page when network is offline', async ({ page }) => {
+    // Simulate offline mode
+    await page.context().setOffline(true);
+
+    // Reload the page to apply offline mode
+    await page.reload();
+
+    // Verify offline page is displayed
+    await expect(page.getByText('You are offline')).toBeVisible();
+
+    // Simulate online mode
+    await page.context().setOffline(false);
+
+    // Reload the page to apply online mode
+    await page.reload();
+
+    // Verify main content is displayed
+    await expect(page.getByText('Welcome to Landing Screen')).toBeVisible();
   });
 });
