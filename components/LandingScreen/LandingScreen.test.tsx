@@ -19,14 +19,14 @@ jest.mock('@/store/errorStore', () => ({
 describe('LandingScreen', () => {
   const mockRouterPush = jest.fn();
   const mockSetUserDetails = jest.fn();
-  const mockSetEpamFacts = jest.fn();
+  const mockSetfacts = jest.fn();
   const mockShowError = jest.fn();
 
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockRouterPush });
     (useStore as unknown as jest.Mock).mockReturnValue({
       setUserDetails: mockSetUserDetails,
-      setEpamFacts: mockSetEpamFacts,
+      setfacts: mockSetfacts,
     });
     (useErrorStore as unknown as jest.Mock).mockReturnValue({
       showError: mockShowError,

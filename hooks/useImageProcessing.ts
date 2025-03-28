@@ -3,11 +3,13 @@ import { addLogo, optimizeImage } from '@/lib/imageUtils';
 import { useStore } from '@/store/store';
 import { useErrorStore } from '@/store/errorStore';
 import { AppLogger } from '@/lib/logger';
+import { useUser } from '@/contexts/UserContext';
 
 export function useImageProcessing() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const { fullName, socialHandle, setImageUrl } = useStore();
+  const { userSocial, setImageUrl } = useStore();
+  const { userName } = useUser();
   const { showError } = useErrorStore();
 
   const processImage = async (image: string) => {
@@ -29,7 +31,12 @@ export function useImageProcessing() {
       const optimizedImage = await optimizeImage(proxyUrl);
       setProgress(80);
 
-      const brandedImage = await addLogo(optimizedImage, '/brand-logo.png', fullName, socialHandle);
+      const brandedImage = await addLogo(
+        optimizedImage,
+        '/brand-logo.png',
+        userName,
+        userSocial?.handle
+      );
       setProgress(100);
 
       setProcessedImage(brandedImage);

@@ -4,18 +4,18 @@ import { useStore } from '@/store/store';
 import { useEffect } from 'react';
 
 export function FactsCarousel() {
-  const { epamFacts, currentFactIndex, setCurrentFactIndex } = useStore();
+  const { facts, currentFactIndex, setCurrentFactIndex } = useStore();
 
   useEffect(() => {
-    if (epamFacts.length > 0) {
+    if (facts.length > 0) {
       const timer = setInterval(() => {
-        setCurrentFactIndex((prev: number) => (prev < epamFacts.length - 1 ? prev + 1 : 0));
+        setCurrentFactIndex(currentFactIndex < facts.length - 1 ? currentFactIndex + 1 : 0);
       }, 5000);
       return () => clearInterval(timer);
     }
-  }, [epamFacts, setCurrentFactIndex]);
+  }, [facts, setCurrentFactIndex]);
 
-  if (epamFacts.length === 0) return null;
+  if (facts.length === 0) return null;
 
   return (
     <div className='w-full max-w-2xl mx-auto mt-8'>
@@ -29,13 +29,15 @@ export function FactsCarousel() {
             transition={{ duration: 0.4 }}
             className='absolute inset-0 bg-white rounded-xl p-6 shadow-lg'
           >
-            <p className='text-gray-700 text-center text-lg'>{epamFacts[currentFactIndex]}</p>
+            <p className='text-gray-700 text-center text-lg'>
+              {facts[currentFactIndex].toString()}
+            </p>
           </motion.div>
         </AnimatePresence>
       </div>
 
       <div className='flex justify-center gap-2 mt-4'>
-        {epamFacts.map((_, index) => (
+        {facts.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentFactIndex(index)}
