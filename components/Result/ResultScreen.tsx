@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
 import { useErrorStore } from '@/store/errorStore';
 import { AppLogger } from '@/lib/logger';
-import { useUser } from '@/contexts/UserContext';
 
 export function ResultScreen() {
   // const [showShareOptions, setShowShareOptions] = useState(false);
@@ -17,7 +16,6 @@ export function ResultScreen() {
   const router = useRouter();
   const { imageUrl, reset } = useStore();
   const { showError } = useErrorStore();
-  const { clearUser } = useUser();
 
   const handleDownload = () => {
     try {
@@ -47,7 +45,6 @@ export function ResultScreen() {
   const handleStartOver = () => {
     try {
       reset();
-      clearUser();
       router.push('/');
     } catch (err) {
       if (err instanceof Error) {

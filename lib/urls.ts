@@ -1,4 +1,4 @@
-import urls from '../public/locales/en/common.json';
+import urls from '../../public/locales/en/urls.json';
 
 export type AppUrls = typeof urls;
 

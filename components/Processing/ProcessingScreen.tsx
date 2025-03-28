@@ -8,13 +8,11 @@ import { useStore } from '@/store/store';
 import { useErrorStore } from '@/store/errorStore';
 import { AppLogger } from '@/lib/logger';
 import { FactsCarousel } from '@/components/FactsCarousel/FactsCarousel';
-import { useUser } from '@/contexts/UserContext';
 
 export function ProcessingScreen() {
   const { processImage, progress } = useImageProcessing();
-  const { userName } = useUser();
   const router = useRouter();
-  const { imageUrl, facts } = useStore();
+  const { imageUrl, epamFacts } = useStore();
   const { showError } = useErrorStore();
   const hasProcessed = useRef(false);
 
@@ -54,7 +52,7 @@ export function ProcessingScreen() {
     <div className='h-screen w-full bg-gray-900 flex flex-col items-center justify-center gap-8'>
       <FactsCarousel />
 
-      {facts.length === 0 && (
+      {epamFacts.length === 0 && (
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
@@ -63,7 +61,7 @@ export function ProcessingScreen() {
       )}
 
       <div className='text-center space-y-2'>
-        <h2 className='text-2xl font-bold text-white'>Hey {userName}! Creating Your Cartoon</h2>
+        <h2 className='text-2xl font-bold text-white'>Creating Your Cartoon</h2>
         <p className='text-white/60'>{Math.round(progress)}% Complete</p>
       </div>
     </div>
