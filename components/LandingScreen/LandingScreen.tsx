@@ -29,13 +29,13 @@ export default function LandingScreen() {
   const { socialPlatforms, setUserDetails } = useStore();
 
   // Add UserContext integration
-  const { setUserName } = useUser();
+  const { setUserName, userName } = useUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (fullName) {
       // Keep existing store update
-      setUserDetails({ full_name: fullName, user_social: socialHandles || [] });
+      setUserDetails({ email: fullName, full_name: userName, user_social: socialHandles || [] });
 
       // Add UserContext update
       setUserName(fullName);
