@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
 import { useErrorStore } from '@/store/errorStore';
 import { AppLogger } from '@/lib/logger';
+import Image from 'next/image';
 
 export function Crop() {
   const router = useRouter();
@@ -79,7 +80,7 @@ export function Crop() {
             aspect={1}
             className='border-2 border-white/20 rounded-lg overflow-hidden'
           >
-            <img ref={imgRef} src={imageUrl} alt='Edit' className='object-contain max-h-[60vh]' />
+            <Image ref={imgRef} src={imageUrl} alt='Edit' className='object-contain max-h-[60vh]' />
           </ReactCrop>
 
           <div className='absolute top-2 left-2 text-white/80 text-sm bg-black/50 px-2 py-1 rounded'>
