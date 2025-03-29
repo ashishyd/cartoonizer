@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { ErrorBoundary } from '@/components/Error/ErrorBoundary';
 import LandingScreen from '@/components/LandingScreen/LandingScreen';
 import { ErrorToast } from '@/components/Error/ErrorToast';

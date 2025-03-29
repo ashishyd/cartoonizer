@@ -185,3 +185,18 @@ body {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  body.print-mode #print-area,
+  body.print-mode #print-area * {
+    visibility: visible;
+  }
+  body.print-mode #print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

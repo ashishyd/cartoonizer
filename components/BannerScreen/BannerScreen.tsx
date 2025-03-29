@@ -83,16 +83,18 @@ export default function BannerScreen() {
 
       <Card className='w-full max-w-md bg-white/60 backdrop-blur-md border-0 shadow-xl'>
         <CardHeader className='pb-4'>
-          <div className='flex justify-center mb-6 relative'>
+          <div className='flex justify-center mb-3 relative'>
             <div className='absolute -top-2 -left-2 w-8 h-8 bg-[#ffb6e1] rounded-full animate-ping opacity-75'></div>
-            <div className='relative z-10 bg-gradient-to-br from-[#ffb6e1] to-[#d9c5ff] p-4 rounded-full shadow-lg'>
+            <div className='relative z-10 bg-gradient-to-br from-[#ffb6e1] to-[#d9c5ff] p-2 rounded-full shadow-lg'>
               {isAuthenticated ? (
                 userImageUrl ? (
-                  <div className='h-10 w-10 rounded-full overflow-hidden'>
+                  <div className='h-20 w-20 rounded-full overflow-hidden'>
                     <Image
                       src={userImageUrl || '/placeholder.svg'}
                       alt={userName}
                       className='h-full w-full object-cover'
+                      width={100}
+                      height={100}
                     />
                   </div>
                 ) : (
@@ -119,11 +121,13 @@ export default function BannerScreen() {
               </div>
               {userImageUrl && (
                 <div className='mt-4 flex justify-center'>
-                  <div className='w-32 h-32 rounded-lg overflow-hidden border-4 border-[#ffb6e1]/30 shadow-lg'>
-                    <img
+                  <div className='w-75 h-50 rounded-lg overflow-hidden border-4 border-[#ffb6e1]/30 shadow-lg'>
+                    <Image
                       src={userImageUrl || '/placeholder.svg'}
                       alt={`${userName}'s photo`}
                       className='w-full h-full object-cover'
+                      width={128}
+                      height={128}
                     />
                   </div>
                 </div>

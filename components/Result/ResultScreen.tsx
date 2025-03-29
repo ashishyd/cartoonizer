@@ -66,19 +66,35 @@ export function ResultScreen() {
     }
   };
 
+  const handlePrint = () => {
+    const printArea = document.getElementById('print-area');
+    if (printArea) {
+      // Add a print-specific class to the body
+      document.body.classList.add('print-mode');
+
+      // Trigger the print dialog
+      window.print();
+
+      // Remove the print-specific class after printing
+      document.body.classList.remove('print-mode');
+    }
+  };
+
   return (
     <div className='h-screen w-full bg-gray-900 flex flex-col items-center justify-center gap-8 p-4'>
-      <motion.img
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        src={imageUrl}
-        alt='Result'
-        className='w-full max-w-2xl rounded-2xl shadow-xl border-4 border-white/10'
-      />
+      <div id='print-area'>
+        <motion.img
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          src={imageUrl}
+          alt='Result'
+          className='w-full max-w-2xl rounded-2xl shadow-xl border-4 border-white/10'
+        />
+      </div>
 
       <div className='flex gap-4 flex-wrap justify-center'>
         <button
-          onClick={() => window.print()}
+          onClick={handlePrint}
           className='px-6 py-3 bg-white/90 text-black rounded-full font-semibold hover:bg-white transition-all'
         >
           Print
