@@ -3,7 +3,7 @@ import type { AppError } from '@/types/error';
 export class AppLogger {
   static logError(error: AppError) {
     // Send to error monitoring service
-    console.error('Application Error:', {
+    console?.error('Application Error:', {
       code: error.code,
       message: error.message,
       context: error.context,

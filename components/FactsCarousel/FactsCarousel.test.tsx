@@ -11,7 +11,7 @@ describe('FactsCarousel', () => {
 
   beforeEach(() => {
     (useStore as unknown as jest.Mock).mockReturnValue({
-      epamFacts: ['Fact 1', 'Fact 2', 'Fact 3'],
+      facts: ['Fact 1', 'Fact 2', 'Fact 3'],
       currentFactIndex: 0,
       setCurrentFactIndex: mockSetCurrentFactIndex,
     });
@@ -42,9 +42,9 @@ describe('FactsCarousel', () => {
     jest.useRealTimers();
   });
 
-  it('renders no facts when epamFacts is empty', () => {
+  it('renders no facts when facts is empty', () => {
     (useStore as unknown as jest.Mock).mockReturnValue({
-      epamFacts: [],
+      facts: [],
       currentFactIndex: 0,
       setCurrentFactIndex: mockSetCurrentFactIndex,
     });
